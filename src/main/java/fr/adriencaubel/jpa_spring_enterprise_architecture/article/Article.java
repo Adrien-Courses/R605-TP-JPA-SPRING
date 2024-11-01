@@ -19,12 +19,14 @@ public class Article {
 
     private String nom;
     private Double prix;
+    
+    private Boolean actif = true;
 
     /*
      * - Indique que la relation est gérée côté Commande
      * - L'attribut articles dans Commande définit la relation 
      */
-    @ManyToMany(mappedBy = "articles", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "articles")
     private List<Commande> commandes = new ArrayList<>();
 
 	public Long getId() {
@@ -49,6 +51,14 @@ public class Article {
 
 	public void setPrix(Double prix) {
 		this.prix = prix;
+	}
+
+	public Boolean isActif() {
+		return actif;
+	}
+
+	public void setActif(Boolean actif) {
+		this.actif = actif;
 	}
 
 	public List<Commande> getCommandes() {

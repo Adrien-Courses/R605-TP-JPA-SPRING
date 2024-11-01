@@ -1,5 +1,7 @@
 package fr.adriencaubel.jpa_spring_enterprise_architecture.article;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,9 @@ public class ArticleService {
         Article article = articleRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Article non trouvé"));
         
-        articleRepository.delete(article);
+        // On ne supprime pas mais le rendons inactifs
+        article.setActif(false);
+        articleRepository.save(article);
     }
     
     private Article toEntity(ArticleRequestDTO articleRequestDTO) {
@@ -31,5 +35,12 @@ public class ArticleService {
     	article.setNom(articleRequestDTO.getNom());
     	article.setPrix(articleRequestDTO.getPrix());
     	return article;
+    }
+
+    public List<Article> getArticles(Boolean actif) {
+        if (actif == null) {
+            return articleRepository.findAll();
+        }
+        return articleRepository.findByActif(actif);
     }
 }

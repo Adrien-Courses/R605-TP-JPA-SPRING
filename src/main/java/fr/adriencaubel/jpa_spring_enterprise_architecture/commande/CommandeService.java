@@ -2,6 +2,7 @@ package fr.adriencaubel.jpa_spring_enterprise_architecture.commande;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,18 @@ public class CommandeService {
         // Récupérer les articles
         List<Article> articles = articleRepository.findAllById(commandeRequestModel.getArticleIds());
         
+        // Vérifier si tous les articles sont actifs
+        List<Article> articlesInactifs = articles.stream()
+                .filter(article -> !article.isActif())
+                .collect(Collectors.toList());
+
+        if (!articlesInactifs.isEmpty()) {
+            throw new IllegalArgumentException("Impossible de créer la commande. Les articles suivants sont inactifs: " 
+                + articlesInactifs.stream()
+                    .map(Article::getNom)
+                    .collect(Collectors.joining(", ")));
+        }
+        
         Commande commande = new Commande();
         commande.setClient(client);
         commande.setArticles(articles);
@@ -43,6 +56,9 @@ public class CommandeService {
     }
 
     public void deleteCommande(Long id) {
-        
+    	Commande commande = commandeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Commande non trouvée"));
+    	
+        commandeRepository.delete(commande);
     }
 }
